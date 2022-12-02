@@ -37,18 +37,19 @@ int Part2Score(String round) {
     var tokens = round.Split(" ");
     var them = tokens[0] switch { "A" => rock, "B" => paper, _ => scissors };
     var result = tokens[1] switch { "X" => lose, "Y" => draw, _ => win };
-    return (them, result) switch {
-        (rock, lose) => lose + scissors,
-        (rock, draw) => draw + rock,
-        (rock, win) => win + paper,
+    var myMove = (them, result) switch {
+        (rock, lose) => scissors,
+        (rock, draw) => rock,
+        (rock, win) => paper,
 
-        (paper, lose) => lose + rock,
-        (paper, draw) => draw + paper,
-        (paper, win) => win + scissors,
+        (paper, lose) => rock,
+        (paper, draw) => paper,
+        (paper, win) => scissors,
 
-        (scissors, lose) => lose + paper,
-        (scissors, win) => win + rock,
-        (scissors, draw) => draw + scissors,
+        (scissors, lose) => paper,
+        (scissors, win) => rock,
+        (scissors, draw) => scissors,
         (_,_) => 0
     };
+    return myMove + result;
 }
