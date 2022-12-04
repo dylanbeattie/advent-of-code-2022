@@ -18,11 +18,11 @@ int Part1Score(string round) {
     var them = tokens[0] switch { "A" => rock, "B" => paper, _ => scissors };
     var mine = tokens[1] switch { "X" => rock, "Y" => paper, _ => scissors };
     return (them, mine) switch {
-        (rock, rock) => draw + rock,
-        (rock, paper) => win + paper,
-        (rock, scissors) => lose + scissors,
+        (rock, rock) => 4,
+        (rock, paper) => 8,
+        (rock, scissors) => 3,
 
-        (paper, rock) => lose + rock,
+        (paper, rock) => 1,
         (paper, paper) => draw + paper,
         (paper, scissors) => win + scissors,
 
