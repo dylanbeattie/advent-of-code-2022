@@ -18,18 +18,16 @@ foreach (var line in crates[1..]) {
 var stacks2 = stacks1.Select(t => new Stack<char>(t.Reverse())).ToArray();
 
 foreach (var (count, source, target) in moves) {
-	var i = 0;
-	while (i++ < count) stacks1[target].Push(stacks1[source].Pop());
+	for(var i = 0; i < count; i++) stacks1[target].Push(stacks1[source].Pop());
 }
-var part1 = new String(stacks1.Select(stack => stack.Peek()).ToArray()); ;
-Console.WriteLine($"Solution to part 1: {part1}");
+Console.WriteLine($"Solution to part 1: {Stringify(stacks1)}");
 
 foreach (var (count, source, target) in moves) {
     stacks2[target].Push(stacks2[source].Pop(count));
 }
+Console.WriteLine($"Solution to part 2: {Stringify(stacks2)}");
 
-var part2 = new String(stacks2.Select(stack => stack.Peek()).ToArray()); ;
-Console.WriteLine($"Solution to part 2: {part2}");
+string Stringify(Stack<char>[] stacks) => new String(stacks.Select(stack => stack.Peek()).ToArray());
 
 static class StackExtensions {
 	public static IEnumerable<T> Pop<T>(this Stack<T> stack, int count) {
