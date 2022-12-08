@@ -8,6 +8,6 @@ public class Tests {
 	[InlineData("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 10)]
 	[InlineData("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 11)]
 	void FindMarker_Works(string signal, int expected) {
-		Program.FindMarker(signal).ShouldBe(expected);
+		signal.FindMarker().ShouldBe(expected);
 	}
 }
