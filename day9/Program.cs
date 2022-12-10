@@ -1,8 +1,12 @@
-Console.WriteLine(Part1.Solve("input.txt"));
+Console.WriteLine(Day9.Solve("input.txt"));
+Console.WriteLine(Day9.Solve("input.txt", 10));
 
-public class Part1 {
-	public static int Solve(string filename) {
-		var inputs = File.ReadAllLines(filename)
+public class Day9 {
+    public static int Solve(string filename, int knotCount = 2)
+        => SimulateRope(ReadMoves(filename), knotCount);
+    
+	private static IEnumerable<(int, int)> ReadMoves(string filename)
+		=> File.ReadAllLines(filename)
 			.Select(line => line.Split(' '))
 			.SelectMany(tokens =>
 				Enumerable.Range(0, Int32.Parse(tokens[1]))
@@ -14,50 +18,67 @@ public class Part1 {
 					_ => (0, 0)
 				})
 			);
-		var positions = new HashSet<(int, int)>();
-		var head = (0, 0);
-		var last = head;
-		var tail = (0, 0);
-		var offset = (0, 0);
-		foreach (var move in inputs) {
-			// Console.WriteLine($"move is {move}");
-			// Console.WriteLine($"offset is {offset}");
-			var tailMove = offset switch {
-				// Four cardinal direction offsets
-				(-1, 0) => move switch { (+1, _) => move, _ => (0, 0) },
-				(+1, 0) => move switch { (-1, _) => move, _ => (0, 0) },
-				(0, -1) => move switch { (_, +1) => move, _ => (0, 0) },
-				(0, +1) => move switch { (_, -1) => move, _ => (0, 0) },
 
-				(-1, -1) => move switch { (0, +1) => (+1, +1), (+1, 0) => (+1, +1), _ => (0, 0) },
-				(-1, +1) => move switch { (+1, 0) => (+1, -1), (0, -1) => (+1, -1), _ => (0, 0) },
-				(+1, -1) => move switch { (-1, 0) => (-1, +1), (0, +1) => (-1, +1), _ => (0, 0) },
-				(+1, +1) => move switch { (-1, 0) => (-1, -1), (0, -1) => (-1, -1), _ => (0, 0) },
-
-				_ => (0, 0),
-			};
-			// Console.WriteLine($"tailmove: {tailMove}");
-			tail = (tail.Item1 + tailMove.Item1, tail.Item2 + tailMove.Item2);
-			head = (head.Item1 + move.Item1, head.Item2 + move.Item2);
-			offset = (tail.Item1 - head.Item1, tail.Item2 - head.Item2);
-			// for (var y = 5; y >= 0; y--) {
-			// 	for (var x = 0; x < 6; x++) {
-			// 		if (head == (x, y)) {
-			// 			Console.Write('H');
-			// 		} else if (tail == (x, y)) {
-			// 			Console.Write('T');
-			// 		} else {
-			// 			Console.Write('.');
-			// 		}
-			// 	}
-			// 	if (head == tail) Console.Write(" Head covers tail");
-			// 	Console.WriteLine();
-			// }
-			// Console.WriteLine();
-			// Console.WriteLine(offset);
-			// Console.WriteLine(String.Empty.PadLeft(60, '='));
-            positions.Add(tail);
-		};
-		return positions.Count;
+	public static int SimulateRope(IEnumerable<(int, int)> moves, int knotCount = 1) {
+        var visited = new HashSet<(int,int)>();
+        var origin = (0,0);
+        visited.Add(origin);
+		var knots = Enumerable.Repeat(origin, knotCount).ToArray();
+		foreach (var move in moves) {
+            // foreach(var knot in knots) Console.Write(knot.ToString().PadRight(12));
+            // Console.WriteLine();
+            knots[0] = Move(knots[0], move);
+            for(var i = 1; i < knotCount; i++) {
+                knots[i] = Follow(knots[i-1], knots[i]);
+            }
+            visited.Add(knots[^1]);
+            /*
+            for(var y = 15; y >= -6; y--) {
+                for(var x = -10; x < 11; x++) {
+                    for(var i = 0; i < knots.Length; i++) {
+                        if (knots[i] == (x,y)) {
+                            Console.Write(i == 0 ? "H" : i.ToString());
+                            goto nextColumn;
+                        }
+                    }
+                    Console.Write('.');                    
+                   nextColumn: {}
+                }
+                Console.WriteLine();
+            }
+            Console.ReadKey(true);
+            */
+		}
+        return visited.Count();
 	}
+
+    public static (int,int) Follow((int,int) head, (int,int) tail) {
+        var offset = (tail.Item1 - head.Item1, tail.Item2 - head.Item2);
+        return offset switch {
+            (-2,-2) => (tail.Item1+1, tail.Item2+1),
+            (-2,-1) => (tail.Item1+1, tail.Item2+1),
+            (-2,+0) => (tail.Item1+1, tail.Item2),
+            (-2,+1) => (tail.Item1+1, tail.Item2-1),
+            (-2,+2) => (tail.Item1+1, tail.Item2-1),
+
+            (+2,-2) => (tail.Item1-1, tail.Item2+1),
+            (+2,-1) => (tail.Item1-1, tail.Item2+1),
+            (+2,+0) => (tail.Item1-1, tail.Item2),
+            (+2,+1) => (tail.Item1-1, tail.Item2-1),
+            (+2,+2) => (tail.Item1-1, tail.Item2-1),
+
+            (-1,-2) => (tail.Item1+1, tail.Item2+1),
+            (+0,-2) => (tail.Item1, tail.Item2+1),
+            (+1,-2) => (tail.Item1-1, tail.Item2+1),
+
+            (-1,+2) => (tail.Item1+1, tail.Item2-1),
+            (+0,+2) => (tail.Item1, tail.Item2-1),
+            (+1,+2) => (tail.Item1-1, tail.Item2-1),
+            _ => tail
+        };
+    }
+
+    public static (int,int) Move((int,int) head, (int,int) move) 
+        => (head.Item1 + move.Item1, head.Item2 + move.Item2);
+
 }
