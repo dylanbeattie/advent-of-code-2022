@@ -8,18 +8,11 @@ public class FileTree {
 			var tokens = line.Split(' ');
 			switch (tokens[0]) {
 				case "$":
-					switch (tokens[1]) {
-						case "cd":
-							currentDirectory = tokens[2] switch {
-								"/" => currentDirectory,
-								".." => currentDirectory.Parent,
-								_ => currentDirectory.Cd(tokens[2])
-							};
-							break;
-						case "ls":
-							break;
-					}
-
+					if (tokens[1] == "cd") currentDirectory = tokens[2] switch {
+						"/" => currentDirectory,
+						".." => currentDirectory.Parent,
+						_ => currentDirectory.Cd(tokens[2])
+					};
 					break;
 				case "dir":
 					break;
@@ -36,26 +29,22 @@ public class FileTree {
 
 	public class PathNode {
 		public PathNode Cd(string name) {
-			if (!this.Directories.ContainsKey(name)) this.AddDirectory(name);
-			return this.Directories[name];
+			if (!Directories.ContainsKey(name)) AddDirectory(name);
+			return Directories[name];
 		}
 
 		public IEnumerable<int> AllSizes {
 			get {
-				yield return this.Size;
-				foreach (var size in this.Directories.Values.SelectMany(directory => directory.AllSizes)) {
+				yield return Size;
+				foreach (var size in Directories.Values.SelectMany(directory => directory.AllSizes)) {
 					yield return size;
 				}
 			}
 		}
-
 		public PathNode Parent { get; set; } = null!;
 		public int Size => Files.Sum(file => file.Value) + Directories.Sum(dir => dir.Value.Size);
 		public void AddFile(int size, string name) => Files.Add(name, size);
-
-		public void AddDirectory(string name) =>
-			this.Directories.Add(name, new PathNode { Parent = this });
-
+		public void AddDirectory(string name) => Directories.Add(name, new PathNode { Parent = this });
 		public Dictionary<string, PathNode> Directories { get; set; } = new();
 		public Dictionary<string, int> Files { get; set; } = new();
 	}
